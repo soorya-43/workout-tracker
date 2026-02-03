@@ -131,149 +131,167 @@
     </div>
 </div>
 
-<script>
-   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
-    authDomain: "workout-tracker-c18c9.firebaseapp.com",
-    projectId: "workout-tracker-c18c9",
-    storageBucket: "workout-tracker-c18c9.firebasestorage.app",
-    messagingSenderId: "821305629659",
-    appId: "1:821305629659:web:835e69e0094cf58ac7e5fe"
-  };
+/* ---------------- FIREBASE SETUP ---------------- */
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
+  authDomain: "workout-tracker-c18c9.firebaseapp.com",
+  projectId: "workout-tracker-c18c9",
+  storageBucket: "workout-tracker-c18c9.firebasestorage.app",
+  messagingSenderId: "821305629659",
+  appId: "1:821305629659:web:835e69e0094cf58ac7e5fe"
+};
 
-  // Auto-login user (no UI needed)
-  signInAnonymously(auth);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  window.firebaseStuff = { auth, db, onAuthStateChanged, doc, getDoc, setDoc };
-</script>
+signInAnonymously(auth);
+
+/* ---------------- APP DATA ---------------- */
 
 const workouts = [
-    { name: "Day 1 – Push", tasks: [
-        "Dumbbell Floor Press – 4×10–12",
-        "Push-ups – 3× max",
-        "Dumbbell Shoulder Press – 3×10–12",
-        "Lateral Raises – 3×12–15",
-        "Bench/Chair Dips – 3×10–15"
-    ]},
-    { name: "Day 2 – Pull", tasks: [
-        "Bent-Over Dumbbell Row – 4×10–12",
-        "One-Arm Dumbbell Row – 3×10 each",
-        "Dumbbell Bicep Curl – 3×10–12",
-        "Hammer Curl – 3×10–12",
-        "Reverse Fly – 3×12–15"
-    ]},
-    { name: "Day 3 – Legs", tasks: [
-        "Goblet Squats – 4×12–15",
-        "Dumbbell Lunges – 3×10 each",
-        "Romanian Deadlift – 4×10–12",
-        "Calf Raises – 4×15–20",
-        "Wall Sit – 2× max"
-    ]},
-    { name: "Day 4 – Active Recovery", tasks: [
-        "Light walking",
-        "Stretching",
-        "Mobility work"
-    ]},
-    { name: "Day 5 – Shoulders & Arms", tasks: [
-        "Arnold Press – 4×10",
-        "Front Raises – 3×12",
-        "Concentration Curls – 3×10 each",
-        "Overhead Tricep Extension – 3×12",
-        "Wrist Curls – 3×15"
-    ]},
-    { name: "Day 6 – Core & Finisher", tasks: [
-        "Plank – 3×60 sec",
-        "Leg Raises – 3×15",
-        "Russian Twists – 3×20",
-        "Burpees – 2 rounds",
-        "Mountain Climbers – 2 rounds"
-    ]},
-    { name: "Day 7 – Rest", tasks: [
-        "Complete rest",
-        "Sleep well",
-        "Eat properly"
-    ]}
+  { name: "Day 1 – Push", tasks: [
+    "Dumbbell Floor Press – 4×10–12",
+    "Push-ups – 3× max",
+    "Dumbbell Shoulder Press – 3×10–12",
+    "Lateral Raises – 3×12–15",
+    "Bench/Chair Dips – 3×10–15"
+  ]},
+  { name: "Day 2 – Pull", tasks: [
+    "Bent-Over Dumbbell Row – 4×10–12",
+    "One-Arm Dumbbell Row – 3×10 each",
+    "Dumbbell Bicep Curl – 3×10–12",
+    "Hammer Curl – 3×10–12",
+    "Reverse Fly – 3×12–15"
+  ]},
+  { name: "Day 3 – Legs", tasks: [
+    "Goblet Squats – 4×12–15",
+    "Dumbbell Lunges – 3×10 each",
+    "Romanian Deadlift – 4×10–12",
+    "Calf Raises – 4×15–20",
+    "Wall Sit – 2× max"
+  ]},
+  { name: "Day 4 – Active Recovery", tasks: [
+    "Light walking",
+    "Stretching",
+    "Mobility work"
+  ]},
+  { name: "Day 5 – Shoulders & Arms", tasks: [
+    "Arnold Press – 4×10",
+    "Front Raises – 3×12",
+    "Concentration Curls – 3×10 each",
+    "Overhead Tricep Extension – 3×12",
+    "Wrist Curls – 3×15"
+  ]},
+  { name: "Day 6 – Core & Finisher", tasks: [
+    "Plank – 3×60 sec",
+    "Leg Raises – 3×15",
+    "Russian Twists – 3×20",
+    "Burpees – 2 rounds",
+    "Mountain Climbers – 2 rounds"
+  ]},
+  { name: "Day 7 – Rest", tasks: [
+    "Complete rest",
+    "Sleep well",
+    "Eat properly"
+  ]}
 ];
 
-let state = JSON.parse(localStorage.getItem("workoutState")) || {
-    currentDay: 0,
-    completedDays: 0,
-    taskStatus: {}
-};
+let state;
+let userId;
+
+/* ---------------- DOM ---------------- */
 
 const taskList = document.getElementById("taskList");
 const dayTitle = document.getElementById("dayTitle");
 const dayCount = document.getElementById("dayCount");
 
+/* ---------------- FIRESTORE LOAD ---------------- */
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  userId = user.uid;
+  const ref = doc(db, "users", userId);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    state = snap.data();
+  } else {
+    state = { currentDay: 0, completedDays: 0, taskStatus: {} };
+    await setDoc(ref, state);
+  }
+
+  render();
+});
+
 function saveState() {
-    localStorage.setItem("workoutState", JSON.stringify(state));
+  const ref = doc(db, "users", userId);
+  setDoc(ref, state);
 }
 
+/* ---------------- UI LOGIC ---------------- */
+
 function render() {
-    const day = state.currentDay;
-    dayTitle.textContent = workouts[day].name;
-    dayCount.textContent = state.completedDays;
+  const day = state.currentDay;
+  dayTitle.textContent = workouts[day].name;
+  dayCount.textContent = state.completedDays;
+  taskList.innerHTML = "";
 
-    taskList.innerHTML = "";
+  if (!state.taskStatus[day]) {
+    state.taskStatus[day] = Array(workouts[day].tasks.length).fill(false);
+  }
 
-    if (!state.taskStatus[day]) {
-        state.taskStatus[day] = Array(workouts[day].tasks.length).fill(false);
-    }
+  workouts[day].tasks.forEach((task, index) => {
+    const li = document.createElement("li");
+    if (state.taskStatus[day][index]) li.classList.add("completed");
 
-    workouts[day].tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        if (state.taskStatus[day][index]) li.classList.add("completed");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = state.taskStatus[day][index];
+    cb.onchange = () => toggleTask(day, index);
 
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = state.taskStatus[day][index];
-        cb.onchange = () => toggleTask(day, index);
+    const span = document.createElement("span");
+    span.textContent = task;
 
-        const span = document.createElement("span");
-        span.textContent = task;
-
-        li.appendChild(cb);
-        li.appendChild(span);
-        taskList.appendChild(li);
-    });
+    li.appendChild(cb);
+    li.appendChild(span);
+    taskList.appendChild(li);
+  });
 }
 
 function toggleTask(day, index) {
-    state.taskStatus[day][index] = !state.taskStatus[day][index];
-    if (state.taskStatus[day].every(v => v) && day >= state.completedDays) {
-        state.completedDays++;
-    }
+  state.taskStatus[day][index] = !state.taskStatus[day][index];
+  if (state.taskStatus[day].every(v => v) && day >= state.completedDays) {
+    state.completedDays++;
+  }
+  saveState();
+  render();
+}
+
+window.nextDay = function () {
+  if (state.currentDay < workouts.length - 1) {
+    state.currentDay++;
     saveState();
     render();
-}
+  }
+};
 
-function nextDay() {
-    if (state.currentDay < workouts.length - 1) {
-        state.currentDay++;
-        saveState();
-        render();
-    }
-}
-
-function prevDay() {
-    if (state.currentDay > 0) {
-        state.currentDay--;
-        saveState();
-        render();
-    }
-}
-
-render();
+window.prevDay = function () {
+  if (state.currentDay > 0) {
+    state.currentDay--;
+    saveState();
+    render();
+  }
+};
 </script>
 </body>
 </html>
+
 
