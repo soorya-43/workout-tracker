@@ -5,130 +5,108 @@
 <title>Workout To-Do Tracker</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* { box-sizing: border-box; }
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: linear-gradient(135deg, #c084fc, #e9d5ff);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #c084fc, #e9d5ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .app {
-        width: 420px;
-        padding: 22px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.35);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-    }
+.app {
+  width: 420px;
+  padding: 22px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+}
 
-    h2 {
-        margin: 5px 0;
-        text-align: center;
-        color: #3b0764;
-    }
+h2 {
+  text-align: center;
+  margin: 5px 0;
+  color: #3b0764;
+}
 
-    h3 {
-        text-align: center;
-        margin-bottom: 18px;
-        font-weight: 500;
-        color: #4c1d95;
-    }
+h3 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: #4c1d95;
+  font-weight: 500;
+}
 
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-    li {
-        display: flex;
-        align-items: center;
-        padding: 10px 12px;
-        margin-bottom: 10px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.6);
-        transition: transform 0.15s ease, background 0.2s ease;
-    }
+li {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.6);
+}
 
-    li:hover {
-        transform: scale(1.01);
-        background: rgba(255, 255, 255, 0.75);
-    }
+li.completed {
+  opacity: 0.6;
+}
 
-    li.completed {
-        opacity: 0.6;
-    }
+li.completed span {
+  text-decoration: line-through;
+}
 
-    li.completed span {
-        text-decoration: line-through;
-    }
+span {
+  margin-left: 10px;
+  flex: 1;
+  color: #2e1065;
+  font-size: 14.5px;
+}
 
-    span {
-        margin-left: 10px;
-        flex: 1;
-        color: #2e1065;
-        font-size: 14.5px;
-    }
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #9333ea;
+}
 
-    input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #9333ea;
-        cursor: pointer;
-    }
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
 
-    .controls {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 18px;
-    }
-
-    button {
-        flex: 1;
-        margin: 0 4px;
-        padding: 10px 0;
-        border-radius: 14px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        color: white;
-        background: linear-gradient(135deg, #9333ea, #7c3aed);
-        box-shadow: 0 6px 15px rgba(124, 58, 237, 0.35);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 8px 18px rgba(124, 58, 237, 0.45);
-    }
-
-    button:active {
-        transform: translateY(0);
-        box-shadow: 0 5px 12px rgba(124, 58, 237, 0.3);
-    }
+button {
+  flex: 1;
+  margin: 0 4px;
+  padding: 10px 0;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
+  box-shadow: 0 6px 15px rgba(124,58,237,0.35);
+}
 </style>
 </head>
 
 <body>
 <div class="app">
-    <h2 id="dayTitle"></h2>
-    <h3>Days Completed: <span id="dayCount">0</span></h3>
-
-    <ul id="taskList"></ul>
-
-    <div class="controls">
-        <button onclick="prevDay()">⬅ Previous</button>
-        <button onclick="nextDay()">Next ➡</button>
-    </div>
+  <h2 id="dayTitle">Loading...</h2>
+  <h3>Days Completed: <span id="dayCount">0</span></h3>
+  <ul id="taskList"></ul>
+  <div class="controls">
+    <button onclick="prevDay()">⬅ Previous</button>
+    <button onclick="nextDay()">Next ➡</button>
+  </div>
 </div>
 
 <script type="module">
@@ -136,8 +114,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-/* ---------------- FIREBASE SETUP ---------------- */
-
+/* ---------- FIREBASE CONFIG ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
   authDomain: "workout-tracker-c18c9.firebaseapp.com",
@@ -153,8 +130,7 @@ const db = getFirestore(app);
 
 signInAnonymously(auth);
 
-/* ---------------- APP DATA ---------------- */
-
+/* ---------- WORKOUT DATA ---------- */
 const workouts = [
   { name: "Day 1 – Push", tasks: [
     "Dumbbell Floor Press – 4×10–12",
@@ -206,18 +182,15 @@ const workouts = [
 let state;
 let userId;
 
-/* ---------------- DOM ---------------- */
-
 const taskList = document.getElementById("taskList");
 const dayTitle = document.getElementById("dayTitle");
 const dayCount = document.getElementById("dayCount");
 
-/* ---------------- FIRESTORE LOAD ---------------- */
-
+/* ---------- LOAD USER DATA ---------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
-
   userId = user.uid;
+
   const ref = doc(db, "users", userId);
   const snap = await getDoc(ref);
 
@@ -227,17 +200,14 @@ onAuthStateChanged(auth, async (user) => {
     state = { currentDay: 0, completedDays: 0, taskStatus: {} };
     await setDoc(ref, state);
   }
-
   render();
 });
 
 function saveState() {
-  const ref = doc(db, "users", userId);
-  setDoc(ref, state);
+  setDoc(doc(db, "users", userId), state);
 }
 
-/* ---------------- UI LOGIC ---------------- */
-
+/* ---------- UI LOGIC ---------- */
 function render() {
   const day = state.currentDay;
   dayTitle.textContent = workouts[day].name;
@@ -248,26 +218,25 @@ function render() {
     state.taskStatus[day] = Array(workouts[day].tasks.length).fill(false);
   }
 
-  workouts[day].tasks.forEach((task, index) => {
+  workouts[day].tasks.forEach((task, i) => {
     const li = document.createElement("li");
-    if (state.taskStatus[day][index]) li.classList.add("completed");
+    if (state.taskStatus[day][i]) li.classList.add("completed");
 
     const cb = document.createElement("input");
     cb.type = "checkbox";
-    cb.checked = state.taskStatus[day][index];
-    cb.onchange = () => toggleTask(day, index);
+    cb.checked = state.taskStatus[day][i];
+    cb.onchange = () => toggleTask(day, i);
 
     const span = document.createElement("span");
     span.textContent = task;
 
-    li.appendChild(cb);
-    li.appendChild(span);
+    li.append(cb, span);
     taskList.appendChild(li);
   });
 }
 
-function toggleTask(day, index) {
-  state.taskStatus[day][index] = !state.taskStatus[day][index];
+function toggleTask(day, i) {
+  state.taskStatus[day][i] = !state.taskStatus[day][i];
   if (state.taskStatus[day].every(v => v) && day >= state.completedDays) {
     state.completedDays++;
   }
@@ -275,7 +244,7 @@ function toggleTask(day, index) {
   render();
 }
 
-window.nextDay = function () {
+window.nextDay = () => {
   if (state.currentDay < workouts.length - 1) {
     state.currentDay++;
     saveState();
@@ -283,7 +252,7 @@ window.nextDay = function () {
   }
 };
 
-window.prevDay = function () {
+window.prevDay = () => {
   if (state.currentDay > 0) {
     state.currentDay--;
     saveState();
@@ -293,5 +262,3 @@ window.prevDay = function () {
 </script>
 </body>
 </html>
-
-
