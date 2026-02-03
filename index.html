@@ -17,90 +17,108 @@ body {
   align-items: center;
 }
 
+/* ---------- LOGIN ---------- */
+#login {
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+#login input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 10px;
+  width: 180px;
+  text-align: center;
+}
+
+#login button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- APP ---------- */
 .app {
+  display: none;
   width: 420px;
   padding: 22px;
   border-radius: 20px;
   background: rgba(255,255,255,0.35);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-  border: 1px solid rgba(255,255,255,0.4);
 }
 
-h2 {
+h2, h3 {
   text-align: center;
-  margin: 5px 0;
   color: #3b0764;
-}
-
-h3 {
-  text-align: center;
-  margin-bottom: 18px;
-  color: #4c1d95;
-  font-weight: 500;
 }
 
 ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
 li {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 10px;
   margin-bottom: 10px;
   border-radius: 14px;
   background: rgba(255,255,255,0.6);
 }
 
-li.completed {
-  opacity: 0.6;
-}
-
 li.completed span {
   text-decoration: line-through;
+  opacity: 0.6;
 }
 
 span {
   margin-left: 10px;
   flex: 1;
-  color: #2e1065;
-  font-size: 14.5px;
-}
-
-input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #9333ea;
 }
 
 .controls {
   display: flex;
-  justify-content: space-between;
-  margin-top: 18px;
+  margin-top: 15px;
 }
 
-button {
+.controls button {
   flex: 1;
-  margin: 0 4px;
-  padding: 10px 0;
+  margin: 0 5px;
+  padding: 10px;
   border-radius: 14px;
   border: none;
-  cursor: pointer;
-  font-weight: 600;
-  color: white;
   background: linear-gradient(135deg, #9333ea, #7c3aed);
-  box-shadow: 0 6px 15px rgba(124,58,237,0.35);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-  <h2 id="dayTitle">Loading...</h2>
+
+<!-- PASSWORD SCREEN -->
+<div id="login">
+  <h3>Enter Password</h3>
+  <input type="password" id="password" placeholder="******">
+  <br>
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <h2 id="dayTitle"></h2>
   <h3>Days Completed: <span id="dayCount">0</span></h3>
   <ul id="taskList"></ul>
   <div class="controls">
@@ -114,7 +132,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-/* ---------- FIREBASE CONFIG ---------- */
+/* ---------- PASSWORD ---------- */
+window.checkPassword = function () {
+  if (document.getElementById("password").value === "702360") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("Wrong password");
+  }
+};
+
+/* ---------- FIREBASE ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
   authDomain: "workout-tracker-c18c9.firebaseapp.com",
@@ -130,76 +158,36 @@ const db = getFirestore(app);
 
 signInAnonymously(auth);
 
-/* ---------- WORKOUT DATA ---------- */
+/* ---------- DATA ---------- */
 const workouts = [
-  { name: "Day 1 – Push", tasks: [
-    "Dumbbell Floor Press – 4×10–12",
-    "Push-ups – 3× max",
-    "Dumbbell Shoulder Press – 3×10–12",
-    "Lateral Raises – 3×12–15",
-    "Bench/Chair Dips – 3×10–15"
-  ]},
-  { name: "Day 2 – Pull", tasks: [
-    "Bent-Over Dumbbell Row – 4×10–12",
-    "One-Arm Dumbbell Row – 3×10 each",
-    "Dumbbell Bicep Curl – 3×10–12",
-    "Hammer Curl – 3×10–12",
-    "Reverse Fly – 3×12–15"
-  ]},
-  { name: "Day 3 – Legs", tasks: [
-    "Goblet Squats – 4×12–15",
-    "Dumbbell Lunges – 3×10 each",
-    "Romanian Deadlift – 4×10–12",
-    "Calf Raises – 4×15–20",
-    "Wall Sit – 2× max"
-  ]},
-  { name: "Day 4 – Active Recovery", tasks: [
-    "Light walking",
-    "Stretching",
-    "Mobility work"
-  ]},
-  { name: "Day 5 – Shoulders & Arms", tasks: [
-    "Arnold Press – 4×10",
-    "Front Raises – 3×12",
-    "Concentration Curls – 3×10 each",
-    "Overhead Tricep Extension – 3×12",
-    "Wrist Curls – 3×15"
-  ]},
-  { name: "Day 6 – Core & Finisher", tasks: [
-    "Plank – 3×60 sec",
-    "Leg Raises – 3×15",
-    "Russian Twists – 3×20",
-    "Burpees – 2 rounds",
-    "Mountain Climbers – 2 rounds"
-  ]},
-  { name: "Day 7 – Rest", tasks: [
-    "Complete rest",
-    "Sleep well",
-    "Eat properly"
-  ]}
+  { name: "Day 1 – Push", tasks: ["Floor Press","Push-ups","Shoulder Press","Lateral Raises","Dips"] },
+  { name: "Day 2 – Pull", tasks: ["Rows","One-arm Row","Curls","Hammer Curl","Reverse Fly"] },
+  { name: "Day 3 – Legs", tasks: ["Squats","Lunges","RDL","Calf Raises","Wall Sit"] },
+  { name: "Day 4 – Recovery", tasks: ["Walk","Stretch","Mobility"] },
+  { name: "Day 5 – Arms", tasks: ["Arnold Press","Front Raise","Curls","Triceps","Wrists"] },
+  { name: "Day 6 – Core", tasks: ["Plank","Leg Raises","Russian Twist","Burpees","Climbers"] },
+  { name: "Day 7 – Rest", tasks: ["Rest","Sleep","Eat"] }
 ];
 
-let state;
-let userId;
+let state, userId;
 
+/* ---------- DOM ---------- */
 const taskList = document.getElementById("taskList");
 const dayTitle = document.getElementById("dayTitle");
 const dayCount = document.getElementById("dayCount");
 
-/* ---------- LOAD USER DATA ---------- */
-onAuthStateChanged(auth, async (user) => {
+/* ---------- LOAD ---------- */
+onAuthStateChanged(auth, async user => {
   if (!user) return;
   userId = user.uid;
-
   const ref = doc(db, "users", userId);
   const snap = await getDoc(ref);
 
-  if (snap.exists()) {
-    state = snap.data();
-  } else {
-    state = { currentDay: 0, completedDays: 0, taskStatus: {} };
-    await setDoc(ref, state);
-  }
+  state = snap.exists()
+    ? snap.data()
+    : { currentDay: 0, completedDays: 0, taskStatus: {} };
+
+  await setDoc(ref, state);
   render();
 });
 
@@ -207,45 +195,40 @@ function saveState() {
   setDoc(doc(db, "users", userId), state);
 }
 
-/* ---------- UI LOGIC ---------- */
 function render() {
-  const day = state.currentDay;
-  dayTitle.textContent = workouts[day].name;
+  const d = state.currentDay;
+  dayTitle.textContent = workouts[d].name;
   dayCount.textContent = state.completedDays;
   taskList.innerHTML = "";
 
-  if (!state.taskStatus[day]) {
-    state.taskStatus[day] = Array(workouts[day].tasks.length).fill(false);
-  }
+  if (!state.taskStatus[d]) state.taskStatus[d] = [];
 
-  workouts[day].tasks.forEach((task, i) => {
+  workouts[d].tasks.forEach((t, i) => {
     const li = document.createElement("li");
-    if (state.taskStatus[day][i]) li.classList.add("completed");
-
     const cb = document.createElement("input");
     cb.type = "checkbox";
-    cb.checked = state.taskStatus[day][i];
-    cb.onchange = () => toggleTask(day, i);
+    cb.checked = state.taskStatus[d][i] || false;
+    cb.onchange = () => toggle(d, i);
 
     const span = document.createElement("span");
-    span.textContent = task;
+    span.textContent = t;
+
+    if (cb.checked) li.classList.add("completed");
 
     li.append(cb, span);
     taskList.appendChild(li);
   });
 }
 
-function toggleTask(day, i) {
-  state.taskStatus[day][i] = !state.taskStatus[day][i];
-  if (state.taskStatus[day].every(v => v) && day >= state.completedDays) {
-    state.completedDays++;
-  }
+function toggle(d, i) {
+  state.taskStatus[d][i] = !state.taskStatus[d][i];
+  if (state.taskStatus[d].every(Boolean)) state.completedDays++;
   saveState();
   render();
 }
 
 window.nextDay = () => {
-  if (state.currentDay < workouts.length - 1) {
+  if (state.currentDay < 6) {
     state.currentDay++;
     saveState();
     render();
