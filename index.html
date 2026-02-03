@@ -17,39 +17,7 @@ body {
   align-items: center;
 }
 
-/* ---------- LOGIN ---------- */
-#login {
-  background: rgba(255,255,255,0.35);
-  backdrop-filter: blur(12px);
-  padding: 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
-
-#login input {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  margin-top: 10px;
-  width: 180px;
-  text-align: center;
-}
-
-#login button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  border-radius: 14px;
-  border: none;
-  background: linear-gradient(135deg, #9333ea, #7c3aed);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* ---------- APP ---------- */
 .app {
-  display: none;
   width: 420px;
   padding: 22px;
   border-radius: 20px;
@@ -66,6 +34,7 @@ h2, h3 {
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 li {
@@ -85,6 +54,12 @@ li.completed span {
 span {
   margin-left: 10px;
   flex: 1;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #9333ea;
 }
 
 .controls {
@@ -108,22 +83,13 @@ span {
 
 <body>
 
-<!-- PASSWORD SCREEN -->
-<div id="login">
-  <h3>Enter Password</h3>
-  <input type="password" id="password" placeholder="******">
-  <br>
-  <button onclick="checkPassword()">Unlock</button>
-</div>
-
-<!-- APP -->
-<div class="app" id="app">
-  <h2 id="dayTitle"></h2>
+<div class="app">
+  <h2 id="dayTitle">Loading…</h2>
   <h3>Days Completed: <span id="dayCount">0</span></h3>
   <ul id="taskList"></ul>
   <div class="controls">
-    <button onclick="prevDay()">⬅ Previous</button>
-    <button onclick="nextDay()">Next ➡</button>
+    <button id="prevBtn">⬅ Previous</button>
+    <button id="nextBtn">Next ➡</button>
   </div>
 </div>
 
@@ -131,16 +97,6 @@ span {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-/* ---------- PASSWORD ---------- */
-window.checkPassword = function () {
-  if (document.getElementById("password").value === "702360") {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-  } else {
-    alert("Wrong password");
-  }
-};
 
 /* ---------- FIREBASE ---------- */
 const firebaseConfig = {
@@ -156,8 +112,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-signInAnonymously(auth);
-
 /* ---------- DATA ---------- */
 const workouts = [
   { name: "Day 1 – Push", tasks: ["Floor Press","Push-ups","Shoulder Press","Lateral Raises","Dips"] },
@@ -169,16 +123,22 @@ const workouts = [
   { name: "Day 7 – Rest", tasks: ["Rest","Sleep","Eat"] }
 ];
 
-let state, userId;
+let state;
+let userId;
 
 /* ---------- DOM ---------- */
 const taskList = document.getElementById("taskList");
 const dayTitle = document.getElementById("dayTitle");
 const dayCount = document.getElementById("dayCount");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
 
-/* ---------- LOAD ---------- */
+/* ---------- AUTH ---------- */
+signInAnonymously(auth);
+
 onAuthStateChanged(auth, async user => {
   if (!user) return;
+
   userId = user.uid;
   const ref = doc(db, "users", userId);
   const snap = await getDoc(ref);
@@ -191,6 +151,7 @@ onAuthStateChanged(auth, async user => {
   render();
 });
 
+/* ---------- LOGIC ---------- */
 function saveState() {
   setDoc(doc(db, "users", userId), state);
 }
@@ -222,26 +183,29 @@ function render() {
 
 function toggle(d, i) {
   state.taskStatus[d][i] = !state.taskStatus[d][i];
-  if (state.taskStatus[d].every(Boolean)) state.completedDays++;
+  if (state.taskStatus[d].every(Boolean) && d >= state.completedDays) {
+    state.completedDays++;
+  }
   saveState();
   render();
 }
 
-window.nextDay = () => {
-  if (state.currentDay < 6) {
-    state.currentDay++;
-    saveState();
-    render();
-  }
-};
-
-window.prevDay = () => {
+prevBtn.onclick = () => {
   if (state.currentDay > 0) {
     state.currentDay--;
     saveState();
     render();
   }
 };
+
+nextBtn.onclick = () => {
+  if (state.currentDay < workouts.length - 1) {
+    state.currentDay++;
+    saveState();
+    render();
+  }
+};
 </script>
+
 </body>
 </html>
