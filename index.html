@@ -132,6 +132,30 @@
 </div>
 
 <script>
+   <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
+    authDomain: "workout-tracker-c18c9.firebaseapp.com",
+    projectId: "workout-tracker-c18c9",
+    storageBucket: "workout-tracker-c18c9.firebasestorage.app",
+    messagingSenderId: "821305629659",
+    appId: "1:821305629659:web:835e69e0094cf58ac7e5fe"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Auto-login user (no UI needed)
+  signInAnonymously(auth);
+
+  window.firebaseStuff = { auth, db, onAuthStateChanged, doc, getDoc, setDoc };
+</script>
+
 const workouts = [
     { name: "Day 1 – Push", tasks: [
         "Dumbbell Floor Press – 4×10–12",
@@ -252,3 +276,4 @@ render();
 </script>
 </body>
 </html>
+
