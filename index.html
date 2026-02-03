@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Workout To-Do Tracker</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #c084fc, #e9d5ff);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .app {
+        width: 420px;
+        padding: 22px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    h2 {
+        margin: 5px 0;
+        text-align: center;
+        color: #3b0764;
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 18px;
+        font-weight: 500;
+        color: #4c1d95;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.6);
+        transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    li:hover {
+        transform: scale(1.01);
+        background: rgba(255, 255, 255, 0.75);
+    }
+
+    li.completed {
+        opacity: 0.6;
+    }
+
+    li.completed span {
+        text-decoration: line-through;
+    }
+
+    span {
+        margin-left: 10px;
+        flex: 1;
+        color: #2e1065;
+        font-size: 14.5px;
+    }
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #9333ea;
+        cursor: pointer;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 18px;
+    }
+
+    button {
+        flex: 1;
+        margin: 0 4px;
+        padding: 10px 0;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        box-shadow: 0 6px 15px rgba(124, 58, 237, 0.35);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(124, 58, 237, 0.45);
+    }
+
+    button:active {
+        transform: translateY(0);
+        box-shadow: 0 5px 12px rgba(124, 58, 237, 0.3);
+    }
+</style>
+</head>
+
+<body>
+<div class="app">
+    <h2 id="dayTitle"></h2>
+    <h3>Days Completed: <span id="dayCount">0</span></h3>
+
+    <ul id="taskList"></ul>
+
+    <div class="controls">
+        <button onclick="prevDay()">⬅ Previous</button>
+        <button onclick="nextDay()">Next ➡</button>
+    </div>
+</div>
+
+<script>
+const workouts = [
+    { name: "Day 1 – Push", tasks: [
+        "Dumbbell Floor Press – 4×10–12",
+        "Push-ups – 3× max",
+        "Dumbbell Shoulder Press – 3×10–12",
+        "Lateral Raises – 3×12–15",
+        "Bench/Chair Dips – 3×10–15"
+    ]},
+    { name: "Day 2 – Pull", tasks: [
+        "Bent-Over Dumbbell Row – 4×10–12",
+        "One-Arm Dumbbell Row – 3×10 each",
+        "Dumbbell Bicep Curl – 3×10–12",
+        "Hammer Curl – 3×10–12",
+        "Reverse Fly – 3×12–15"
+    ]},
+    { name: "Day 3 – Legs", tasks: [
+        "Goblet Squats – 4×12–15",
+        "Dumbbell Lunges – 3×10 each",
+        "Romanian Deadlift – 4×10–12",
+        "Calf Raises – 4×15–20",
+        "Wall Sit – 2× max"
+    ]},
+    { name: "Day 4 – Active Recovery", tasks: [
+        "Light walking",
+        "Stretching",
+        "Mobility work"
+    ]},
+    { name: "Day 5 – Shoulders & Arms", tasks: [
+        "Arnold Press – 4×10",
+        "Front Raises – 3×12",
+        "Concentration Curls – 3×10 each",
+        "Overhead Tricep Extension – 3×12",
+        "Wrist Curls – 3×15"
+    ]},
+    { name: "Day 6 – Core & Finisher", tasks: [
+        "Plank – 3×60 sec",
+        "Leg Raises – 3×15",
+        "Russian Twists – 3×20",
+        "Burpees – 2 rounds",
+        "Mountain Climbers – 2 rounds"
+    ]},
+    { name: "Day 7 – Rest", tasks: [
+        "Complete rest",
+        "Sleep well",
+        "Eat properly"
+    ]}
+];
+
+let state = JSON.parse(localStorage.getItem("workoutState")) || {
+    currentDay: 0,
+    completedDays: 0,
+    taskStatus: {}
+};
+
+const taskList = document.getElementById("taskList");
+const dayTitle = document.getElementById("dayTitle");
+const dayCount = document.getElementById("dayCount");
+
+function saveState() {
+    localStorage.setItem("workoutState", JSON.stringify(state));
+}
+
+function render() {
+    const day = state.currentDay;
+    dayTitle.textContent = workouts[day].name;
+    dayCount.textContent = state.completedDays;
+
+    taskList.innerHTML = "";
+
+    if (!state.taskStatus[day]) {
+        state.taskStatus[day] = Array(workouts[day].tasks.length).fill(false);
+    }
+
+    workouts[day].tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        if (state.taskStatus[day][index]) li.classList.add("completed");
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = state.taskStatus[day][index];
+        cb.onchange = () => toggleTask(day, index);
+
+        const span = document.createElement("span");
+        span.textContent = task;
+
+        li.appendChild(cb);
+        li.appendChild(span);
+        taskList.appendChild(li);
+    });
+}
+
+function toggleTask(day, index) {
+    state.taskStatus[day][index] = !state.taskStatus[day][index];
+    if (state.taskStatus[day].every(v => v) && day >= state.completedDays) {
+        state.completedDays++;
+    }
+    saveState();
+    render();
+}
+
+function nextDay() {
+    if (state.currentDay < workouts.length - 1) {
+        state.currentDay++;
+        saveState();
+        render();
+    }
+}
+
+function prevDay() {
+    if (state.currentDay > 0) {
+        state.currentDay--;
+        saveState();
+        render();
+    }
+}
+
+render();
+</script>
+</body>
+</html>
