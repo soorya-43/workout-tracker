@@ -10,25 +10,23 @@
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: Inter, Arial, sans-serif;
-  background: radial-gradient(circle at top, #6d28d9, #0f172a);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #4c1d95);
   display: flex;
   justify-content: center;
   align-items: center;
   color: #e9d5ff;
 }
 
-/* APP CONTAINER */
 .app {
   width: 420px;
-  padding: 26px;
+  padding: 28px;
   border-radius: 24px;
   background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
 }
 
-/* HEADERS */
 h1 {
   margin: 0;
   text-align: center;
@@ -36,13 +34,12 @@ h1 {
 }
 
 h2 {
+  margin: 10px 0 20px;
   text-align: center;
   font-weight: 500;
-  margin: 8px 0 20px;
   color: #c4b5fd;
 }
 
-/* TASK LIST */
 ul {
   list-style: none;
   padding: 0;
@@ -57,7 +54,6 @@ li {
   margin-bottom: 12px;
   border-radius: 16px;
   background: rgba(255,255,255,0.12);
-  transition: background 0.2s ease;
 }
 
 li.completed {
@@ -71,7 +67,6 @@ input[type="checkbox"] {
   accent-color: #a78bfa;
 }
 
-/* CONTROLS */
 .controls {
   display: flex;
   gap: 10px;
@@ -85,7 +80,7 @@ button {
   border: none;
   cursor: pointer;
   font-weight: 600;
-  color: #fff;
+  color: white;
   background: linear-gradient(135deg, #8b5cf6, #6d28d9);
   box-shadow: 0 10px 25px rgba(139,92,246,0.4);
 }
@@ -95,7 +90,7 @@ button {
 <body>
 
 <div class="app">
-  <h1 id="dayTitle">Loading…</h1>
+  <h1 id="dayTitle"></h1>
   <h2>Days Completed: <span id="dayCount">0</span></h2>
 
   <ul id="taskList"></ul>
@@ -106,25 +101,7 @@ button {
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-/* ---------- FIREBASE (UNCHANGED) ---------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyBGU8JmI6Js-g1wqplfUgAtGUP_kHqn7Jg",
-  authDomain: "workout-tracker-c18c9.firebaseapp.com",
-  projectId: "workout-tracker-c18c9",
-  storageBucket: "workout-tracker-c18c9.firebasestorage.app",
-  messagingSenderId: "821305629659",
-  appId: "1:821305629659:web:835e69e0094cf58ac7e5fe"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+<script>
 /* ---------- WORKOUT DATA ---------- */
 const workouts = [
   { name: "Day 1 – Push", tasks: ["Floor Press","Push-ups","Shoulder Press","Lateral Raises","Dips"] },
@@ -137,8 +114,11 @@ const workouts = [
 ];
 
 /* ---------- STATE ---------- */
-let state = null;
-let userId = null;
+let state = JSON.parse(localStorage.getItem("workoutState")) || {
+  currentDay: 0,
+  completedDays: 0,
+  taskStatus: {}
+};
 
 /* ---------- DOM ---------- */
 const taskList = document.getElementById("taskList");
@@ -147,27 +127,9 @@ const dayCount = document.getElementById("dayCount");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-/* ---------- AUTH FLOW ---------- */
-signInAnonymously(auth);
-
-onAuthStateChanged(auth, async user => {
-  if (!user) return;
-
-  userId = user.uid;
-  const ref = doc(db, "users", userId);
-  const snap = await getDoc(ref);
-
-  state = snap.exists()
-    ? snap.data()
-    : { currentDay: 0, completedDays: 0, taskStatus: {} };
-
-  await setDoc(ref, state);
-  render();
-});
-
-/* ---------- FUNCTIONS ---------- */
+/* ---------- LOGIC ---------- */
 function saveState() {
-  setDoc(doc(db, "users", userId), state);
+  localStorage.setItem("workoutState", JSON.stringify(state));
 }
 
 function render() {
@@ -222,6 +184,9 @@ nextBtn.onclick = () => {
     render();
   }
 };
+
+/* ---------- START ---------- */
+render();
 </script>
 
 </body>
